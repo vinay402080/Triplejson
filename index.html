@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Triple JSON GUID Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    h2 {
+      text-align: center;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+      justify-content: space-between;
+    }
+    .editor {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    textarea {
+      width: 100%;
+      height: 400px;
+      font-family: monospace;
+      font-size: 14px;
+      margin-bottom: 10px;
+      resize: vertical;
+    }
+    button {
+      padding: 8px 12px;
+      margin-right: 5px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .buttons {
+      display: flex;
+      justify-content: flex-start;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Triple JSON GUID Generator</h2>
+<div class="container">
+  <div class="editor">
+    <textarea id="jsonInput1" placeholder="Paste JSON here..."></textarea>
+    <div class="buttons">
+      <button onclick="copyJSON('jsonInput1')">Copy JSON</button>
+      <button onclick="generateGUIDs('jsonInput1')">Generate New GUIDs</button>
+      <button onclick="clearJSON('jsonInput1')">Clear</button>
+    </div>
+  </div>
+  <div class="editor">
+    <textarea id="jsonInput2" placeholder="Paste JSON here..."></textarea>
+    <div class="buttons">
+      <button onclick="copyJSON('jsonInput2')">Copy JSON</button>
+      <button onclick="generateGUIDs('jsonInput2')">Generate New GUIDs</button>
+      <button onclick="clearJSON('jsonInput2')">Clear</button>
+    </div>
+  </div>
+  <div class="editor">
+    <textarea id="jsonInput3" placeholder="Paste JSON here..."></textarea>
+    <div class="buttons">
+      <button onclick="copyJSON('jsonInput3')">Copy JSON</button>
+      <button onclick="generateGUIDs('jsonInput3')">Generate New GUIDs</button>
+      <button onclick="clearJSON('jsonInput3')">Clear</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function generateGUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  function replaceGUIDs(obj) {
+    if (Array.isArray(obj)) {
+      obj.forEach(item => replaceGUIDs(item));
+    } else if (typeof obj === 'object' && obj !== null) {
+      for (const key in obj) {
+        if (['tacticId', 'sourceId', 'correlationId'].includes(key)) {
+          obj[key] = generateGUID();
+        } else {
+          replaceGUIDs(obj[key]);
+        }
+      }
+    }
+  }
+
+  function generateGUIDs(textareaId) {
+    const textarea = document.getElementById(textareaId);
+    try {
+      const json = JSON.parse(textarea.value);
+      replaceGUIDs(json);
+      textarea.value = JSON.stringify(json, null, 2);
+    } catch (e) {
+      alert('Invalid JSON in ' + textareaId + '. Please check your input.');
+    }
+  }
+
+  function copyJSON(textareaId) {
+    const textarea = document.getElementById(textareaId);
+    textarea.select();
+    document.execCommand('copy');
+  }
+
+  function clearJSON(textareaId) {
+    document.getElementById(textareaId).value = '';
+  }
+</script>
+
+</body>
+</html>
